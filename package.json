@@ -1,0 +1,21 @@
+{
+  "name": "patika-graphql-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "graphql": "^20.11.0",
+    "apollo-server": "^2.6.3"      
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
