@@ -1,11 +1,22 @@
 const { gql } = require("apollo-server");
-const { users, events, locations, participants } = require("./data.json");
+let { users, events, locations, participants } = require("./data.json");
 const typeDefs = gql`
   type User {
     id: ID!
     username: String!
     email: String!
   }
+
+  input CreateUserInput {
+    username: String!
+    email: String!
+  }
+  input UpdateUserInput {
+    id: ID!
+    username: String
+    email: String
+  }
+
   type Event {
     id: ID!
     title: String!
@@ -30,7 +41,7 @@ const typeDefs = gql`
     id: ID!
     user_id: ID!
     event_id: ID!
-    username: String!    
+    username: String!
   }
 
   type Query {
@@ -43,9 +54,46 @@ const typeDefs = gql`
     participants: [Participant!]
     participant(id: ID!): Participant
   }
+
+  type Mutation {
+    createUser(data: CreateUserInput!): Boolean!
+    updateUser(data: UpdateUserInput!): User
+    deleteUser(id: ID!): Boolean!
+    deleteAllUsers: Int!
+  }
 `;
 
 const resolvers = {
+  Mutation: {
+    createUser: (parent, { data }) => {
+      users.push({
+        id: users.length + 1,
+        ...data,
+      });
+      return true;
+    },
+    updateUser: (parent, { data }) => {
+      let user_index = users.findIndex((user) => user.id == data.id);
+      if (user_index == -1) throw new Error("User not found");
+
+      const updated_user = (users[user_index] = {
+        ...users[user_index],
+        ...data,
+      });
+      return updated_user;
+    },
+    deleteUser: (parent, { id }) => {
+      let user_index = users.findIndex((user) => user.id == data.id);
+      if (user_index == -1) throw new Error("User not found");
+
+      return users.splice(user_index, 1);
+    },
+    deleteAllUsers: (parent,args) => {
+      let count= users.length;
+      users=[];
+      return count;      
+    },
+  },
   Query: {
     users: () => users,
     user: (parent, args) => users.find((user) => user.id == args.id),
