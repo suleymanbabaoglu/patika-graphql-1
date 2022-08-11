@@ -9,8 +9,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "graphql": "^20.11.0",
-    "apollo-server": "^2.6.3"      
+    "@graphql-yoga/redis-event-target": "^0.1.3",
+    "graphql": "^16.5.0",
+    "graphql-yoga": "^2.13.6",
+    "ioredis": "^5.2.2",
+    "nanoid": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.4"

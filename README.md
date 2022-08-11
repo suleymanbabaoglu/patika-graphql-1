@@ -1,4 +1,4 @@
 # patika-graphql-1
-Patika.dev GraphQL Example
+Patika.dev GraphQL Exercises
 
 www.patika.dev

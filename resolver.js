@@ -1,6 +1,6 @@
-const { gql } = require("apollo-server");
+const pubSub = require("./redis");
 let { users, events, locations, participants } = require("./data.json");
-const typeDefs = gql`
+const typeDefs = `
   type User {
     id: ID!
     username: String!
@@ -10,6 +10,21 @@ const typeDefs = gql`
   input CreateUserInput {
     username: String!
     email: String!
+  }
+  input CreateEventInput {
+    title: String!
+    desc: String!
+    date: String!
+    from: String!
+    to: String!
+    participants: [Participant!]
+    location: [Location!]
+    user: [User!]
+  }
+  input AddParticipantInput {
+    user_id: ID!
+    event_id: ID!
+    username: String!
   }
   input UpdateUserInput {
     id: ID!
@@ -56,21 +71,54 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(data: CreateUserInput!): Boolean!
+    createUser(data: CreateUserInput!): User! 
+    createEvent(data: CreateEventInput!): Event! 
+    addParticipant(data: AddParticipantInput!): Participant! 
     updateUser(data: UpdateUserInput!): User
     deleteUser(id: ID!): Boolean!
     deleteAllUsers: Int!
   }
+  
+  type Subscription {
+    userCreated: String!,
+    eventCreated: String!,
+    participantAdded: String!
+  }
 `;
 
 const resolvers = {
+  Subscription: {
+    userCreated: {
+      subscribe: () => pubSub.subscribe("userCreated"),
+      resolve: (payload) => payload.user,
+    },
+    eventCreated: {
+      subscribe: () => pubSub.subscribe("eventCreated"),
+      resolve: (payload) => payload.event,
+    },
+    participantAdded: {
+      subscribe: () => pubSub.subscribe("participantAdded"),
+      resolve: (payload) => payload.participant,
+    },
+  },
   Mutation: {
-    createUser: (parent, { data }) => {
-      users.push({
-        id: users.length + 1,
-        ...data,
-      });
-      return true;
+    createUser: (_, { data }) => {
+      const user = { id: users.length + 1, ...data };
+      users.push(user);
+      pubSub.publish("userCreated", user);
+      return user;
+    },
+    createEvent: (_, { data }) => {
+      const event = { id: events.length + 1, ...data };
+      events.push(event);
+      pubSub.publish("eventCreated", event);
+      return event;
+    },
+    addParticipant: (_, { data }) => {
+      const participant = { id: participants.length + 1, ...data };
+      participants.push(participant);
+      pubSub.publish("participantAdded", participant)
+      return participant;
     },
     updateUser: (parent, { data }) => {
       let user_index = users.findIndex((user) => user.id == data.id);
@@ -88,10 +136,10 @@ const resolvers = {
 
       return users.splice(user_index, 1);
     },
-    deleteAllUsers: (parent,args) => {
-      let count= users.length;
-      users=[];
-      return count;      
+    deleteAllUsers: (parent, args) => {
+      let count = users.length;
+      users = [];
+      return count;
     },
   },
   Query: {

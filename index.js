@@ -1,12 +1,14 @@
-const { ApolloServer } = require("apollo-server");
+const { createServer } = require("@graphql-yoga/node");
+const pubSub = require("./redis");
 const { typeDefs, resolvers } = require("./resolver");
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  csrfPrevention: true,
-  cache: "bounded",
+
+const server = createServer({
+  schema: {
+    typeDefs,
+    resolvers,
+    context: {
+      pubSub,
+    },
+  },
 });
-const port=7889;
-server.listen({ port }).then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+server.start();
