@@ -1,6 +1,6 @@
-const Redis = require("ioredis");
-const { createPubSub } = require("@graphql-yoga/common");
-const { createRedisEventTarget } = require("@graphql-yoga/redis-event-target");
+import Redis from "ioredis";
+import { createPubSub } from "@graphql-yoga/common";
+import { createRedisEventTarget } from "@graphql-yoga/redis-event-target";
 
 const options = {
   host: "localhost",
@@ -22,4 +22,4 @@ const pubSub = createPubSub({
   eventTarget,
 });
 
-module.exports = pubSub;
+export default pubSub;

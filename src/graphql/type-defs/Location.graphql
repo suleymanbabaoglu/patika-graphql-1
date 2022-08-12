@@ -1,0 +1,19 @@
+type Location {
+  id: ID!
+  name: String!
+  desc: String!
+  lat: Float!
+  lng: Float!
+}
+
+type Query {
+  locations: [Location!]!
+  location(id: ID!): Location!
+}
+
+input CreateLocationInput {
+  name: String!
+  desc: String!
+  lat: Float!
+  lng: Float!
+}
